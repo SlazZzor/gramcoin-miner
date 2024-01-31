@@ -9,8 +9,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const MY_ADDRESS = process.env.MY_ADDRESS!
-const MINTER_ADDRESS = process.env.MINTER_ADDRESS!
 const MNEMONIC = (process.env.MNEMONIC!).split(' ');
+const DELAY = (process.env.DELAY as unknown as number);
 
 const execAsync = promisify(exec);
 
@@ -47,8 +47,21 @@ function parseParams(params: any[]) {
 
 async function runCommandAndHandleResult(): Promise<void> {
   try {
+    const MINTER_ADDRESSES = [
+      "EQCfwe95AJDfKuAoP1fBtu-un1yE7Mov-9BXaFM3lrJZwqg_",
+      "EQBoATvbIa9vA7y8EUQE4tlsrrt0EhSUK4mndp49V0z7Me3M",
+      "EQAV3tsPXau3VJanBw4KCFaMk3l_n3sX8NHZNgICFrR-9EGE",
+      "EQAR9DvLZMHo9FAVMHI1vHvL7Fi7jWgjKtUARZ2S_nopQRYz",
+      "EQC10L__G2SeEeM2Lw9osGyYxhoIPqJwE-8Pe7728JcmnJzW",
+      "EQDZJFkh12kw-zLGqKSGVDf1V2PRzedGZDFDcFml5_0QerST",
+      "EQCiLN0gEiZqthGy-dKl4pi4kqWJWjRzR3Jv4jmPOtQHveDN",
+      "EQDB8Mo9EviBkg_BxfNv6C2LO_foJRXcgEF41pmQvMvnB9Jn",
+      "EQAidDzp6v4oe-vKFWvsV8MQzY-4VaeUFnGM3ImrKIJUIid9",
+      "EQAFaPmLLhXveHcw3AYIGDlHbGAbfQWlH45WGf4K4D6DNZxY"
+    ];
+    const MINTER_ADDRESS = MINTER_ADDRESSES[Math.floor(Math.random()*MINTER_ADDRESSES.length)];
     const params = parseParams(await getParams(MINTER_ADDRESS));
-    const command = `crypto/pow-miner -vv -w30 -t500 ${MY_ADDRESS} ${params} ${MINTER_ADDRESS} mined.boc`;
+    const command = `../crypto/pow-miner -vv -w1 -t10 ${MY_ADDRESS} ${params} ${MINTER_ADDRESS} mined.boc`;
 
     console.log("[Starting mining]")
     const { stdout, stderr } = await execAsync(command, { timeout: 1000 * 1000 }); // 100 seconds timeout
@@ -87,6 +100,7 @@ async function runCommandAndHandleResult(): Promise<void> {
 
 async function main() {
   while (true) {
+    await new Promise(r => setTimeout(r, DELAY));
     await runCommandAndHandleResult();
   }
 }
